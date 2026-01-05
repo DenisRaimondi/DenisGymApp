@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" fill="#1a1a2e" rx="24"/>
+  <g fill="#e94560">
+    <!-- Dumbbell -->
+    <rect x="30" y="80" width="25" height="32" rx="4"/>
+    <rect x="137" y="80" width="25" height="32" rx="4"/>
+    <rect x="50" y="88" width="92" height="16" rx="4"/>
+    <!-- Weight plates -->
+    <rect x="55" y="72" width="12" height="48" rx="2"/>
+    <rect x="125" y="72" width="12" height="48" rx="2"/>
+  </g>
+</svg>

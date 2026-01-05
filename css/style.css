@@ -1,0 +1,320 @@
+/* Reset e variabili */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #0d0d0d;
+    --bg-secondary: #1a1a1a;
+    --accent: #00ff88;
+    --accent-dim: #00cc6a;
+    --text-primary: #ffffff;
+    --text-secondary: #666666;
+    --danger: #ff4757;
+}
+
+html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Views */
+.view {
+    display: none;
+    height: 100vh;
+    height: 100dvh;
+    flex-direction: column;
+}
+
+.view.active {
+    display: flex;
+}
+
+/* ============ HOME ============ */
+.home-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+}
+
+.home-content {
+    text-align: center;
+    width: 100%;
+}
+
+.home-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+}
+
+.next-workout-label {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 48px;
+}
+
+.btn-start {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 4px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-start:active {
+    background: var(--accent);
+    color: var(--bg-primary);
+    transform: scale(0.95);
+}
+
+.stats-label {
+    margin-top: 48px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* ============ WORKOUT ============ */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    padding: 8px;
+    cursor: pointer;
+}
+
+#exercise-counter {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.workout-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 40px;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+}
+
+.exercise-info-top {
+    text-align: center;
+}
+
+.exercise-info-top h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.exercise-reps {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+.series-progress {
+    font-size: 4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+#series-current {
+    color: var(--accent);
+    font-size: 6rem;
+}
+
+.series-separator,
+#series-total {
+    color: var(--text-secondary);
+}
+
+.btn-done {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: 0 0 60px rgba(0, 255, 136, 0.3);
+}
+
+.btn-done:active {
+    transform: scale(0.92);
+}
+
+.weight-section {
+    width: 100%;
+}
+
+.weight-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.btn-weight-small {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--text-secondary);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.btn-weight-small:active {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.weight-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    min-width: 100px;
+    text-align: center;
+}
+
+/* ============ TIMER ============ */
+.timer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-content {
+    text-align: center;
+}
+
+.timer-label-top {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+.timer-display {
+    font-size: 10rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.timer-display.warning {
+    color: var(--danger);
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+.btn-skip {
+    margin-top: 60px;
+    padding: 16px 48px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 2px solid var(--text-secondary);
+    border-radius: 100px;
+    cursor: pointer;
+}
+
+.btn-skip:active {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+}
+
+/* ============ COMPLETE ============ */
+.complete-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+}
+
+.complete-content {
+    text-align: center;
+}
+
+.complete-icon {
+    width: 120px;
+    height: 120px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    margin: 0 auto 32px;
+    color: var(--bg-primary);
+}
+
+.complete-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 24px;
+}
+
+.workout-summary {
+    margin-bottom: 48px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.workout-summary p {
+    margin: 8px 0;
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* ============ UTILITIES ============ */
+@supports (padding-top: env(safe-area-inset-top)) {
+    header {
+        padding-top: calc(16px + env(safe-area-inset-top));
+    }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>GymApp</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- HOME VIEW -->
+    <div id="home-view" class="view active">
+        <main class="home-main">
+            <div class="home-content">
+                <h1 class="home-title">GymApp</h1>
+                <p id="next-workout-label" class="next-workout-label">Oggi: Full Body A</p>
+                <button id="btn-start" class="btn-start">INIZIA</button>
+                <p id="stats-label" class="stats-label">0 allenamenti completati</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- WORKOUT VIEW -->
+    <div id="workout-view" class="view">
+        <header>
+            <button id="btn-back" class="btn-icon">&larr;</button>
+            <span id="exercise-counter">1/5</span>
+        </header>
+
+        <main class="workout-main">
+            <div class="exercise-info-top">
+                <h1 id="exercise-name">Panca Piana</h1>
+                <p id="exercise-reps" class="exercise-reps">3 x 10</p>
+            </div>
+
+            <div class="series-progress">
+                <span id="series-current">1</span>
+                <span class="series-separator">/</span>
+                <span id="series-total">3</span>
+            </div>
+
+            <button id="btn-done" class="btn-done">FATTO</button>
+
+            <div class="weight-section">
+                <div class="weight-display">
+                    <button id="weight-minus" class="btn-weight-small">-</button>
+                    <span id="weight-value" class="weight-value">0 kg</span>
+                    <button id="weight-plus" class="btn-weight-small">+</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TIMER VIEW (overlay) -->
+    <div id="timer-view" class="view timer-overlay">
+        <div class="timer-content">
+            <p class="timer-label-top">Recupero</p>
+            <div id="timer-display" class="timer-display">90</div>
+            <button id="btn-skip-timer" class="btn-skip">SALTA</button>
+        </div>
+    </div>
+
+    <!-- COMPLETE VIEW -->
+    <div id="complete-view" class="view">
+        <main class="complete-main">
+            <div class="complete-content">
+                <div class="complete-icon">&#10003;</div>
+                <h1>Fatto!</h1>
+                <div id="workout-summary" class="workout-summary"></div>
+                <button id="btn-home" class="btn-start">CHIUDI</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
