@@ -1,13 +1,14 @@
-// App principale - Zero Sbatti Edition
+// App principale - Zero Sbatti Edition + Firebase
 const App = {
     currentScheda: null,
     currentExerciseIndex: 0,
     currentSeries: 1,
     currentWeight: 0,
     exerciseWeights: {},
+    schede: [], // Caricate da Firestore
 
     init() {
-        this.updateHome();
+        this.bindAuthEvents();
         this.bindEvents();
         this.registerServiceWorker();
     },
@@ -18,14 +19,63 @@ const App = {
         }
     },
 
-    // Aggiorna la home con la prossima scheda
-    updateHome() {
-        const nextSchedaId = Storage.getNextSchedaId(SCHEDE);
-        const nextScheda = SCHEDE.find(s => s.id === nextSchedaId);
+    bindAuthEvents() {
+        // Login button
+        document.getElementById('btn-login')?.addEventListener('click', async () => {
+            const password = document.getElementById('password-input').value;
+            const messageEl = document.getElementById('login-message');
+
+            if (!password) {
+                messageEl.textContent = 'Inserisci la password';
+                return;
+            }
+
+            if (password.length < 6) {
+                messageEl.textContent = 'Password: minimo 6 caratteri';
+                return;
+            }
+
+            messageEl.textContent = 'Accesso...';
+            const result = await window.loginWithPassword(password);
+
+            if (result.success) {
+                messageEl.textContent = result.created ? 'Account creato!' : 'Accesso riuscito!';
+            } else {
+                messageEl.textContent = 'Errore: ' + result.error;
+            }
+        });
+
+        // Enter key on password field
+        document.getElementById('password-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('btn-login')?.click();
+            }
+        });
+
+        // Auth state changes
+        window.addEventListener('userLoggedIn', async () => {
+            Storage.setUser(window.currentUser.uid);
+            Storage.clearCache();
+            // Carica schede da Firestore (o inizializza con default)
+            this.schede = await Storage.initSchedeIfNeeded(SCHEDE_DEFAULT);
+            await this.updateHome();
+            this.showView('home-view');
+        });
+
+        window.addEventListener('userLoggedOut', () => {
+            Storage.setUser(null);
+            Storage.clearCache();
+            this.showView('login-view');
+        });
+    },
+
+    async updateHome() {
+        const nextSchedaId = await Storage.getNextSchedaId(this.schede);
+        const nextScheda = this.schede.find(s => s.id === nextSchedaId);
 
         document.getElementById('next-workout-label').textContent = `Oggi: ${nextScheda.nome}`;
 
-        const total = Storage.getTotalWorkouts();
+        const total = await Storage.getTotalWorkouts();
         document.getElementById('stats-label').textContent =
             total === 0 ? 'Primo allenamento!' :
             total === 1 ? '1 allenamento completato' :
@@ -34,125 +84,123 @@ const App = {
 
     bindEvents() {
         // Bottone INIZIA
-        document.getElementById('btn-start').addEventListener('click', () => {
+        document.getElementById('btn-start')?.addEventListener('click', () => {
             this.startWorkout();
         });
 
         // Bottone indietro
-        document.getElementById('btn-back').addEventListener('click', () => {
+        document.getElementById('btn-back')?.addEventListener('click', () => {
             if (confirm('Abbandonare?')) {
                 this.showView('home-view');
             }
         });
 
         // Bottone FATTO
-        document.getElementById('btn-done').addEventListener('click', () => {
+        document.getElementById('btn-done')?.addEventListener('click', () => {
             this.completeSeries();
         });
 
         // Controlli peso
-        document.getElementById('weight-minus').addEventListener('click', () => {
+        document.getElementById('weight-minus')?.addEventListener('click', () => {
             this.adjustWeight(-2.5);
         });
 
-        document.getElementById('weight-plus').addEventListener('click', () => {
+        document.getElementById('weight-plus')?.addEventListener('click', () => {
             this.adjustWeight(2.5);
         });
 
+        // Bottone aiuto (video tutorial)
+        document.getElementById('btn-help')?.addEventListener('click', () => {
+            this.showExerciseHelp();
+        });
+
         // Skip timer
-        document.getElementById('btn-skip-timer').addEventListener('click', () => {
+        document.getElementById('btn-skip-timer')?.addEventListener('click', () => {
             Timer.skip();
         });
 
         // Torna alla home
-        document.getElementById('btn-home').addEventListener('click', () => {
-            this.updateHome();
+        document.getElementById('btn-home')?.addEventListener('click', async () => {
+            await this.updateHome();
             this.showView('home-view');
         });
     },
 
-    // Inizia allenamento (auto-seleziona scheda)
-    startWorkout() {
-        const nextSchedaId = Storage.getNextSchedaId(SCHEDE);
-        this.currentScheda = SCHEDE.find(s => s.id === nextSchedaId);
+    async startWorkout() {
+        const nextSchedaId = await Storage.getNextSchedaId(this.schede);
+        this.currentScheda = this.schede.find(s => s.id === nextSchedaId);
         this.currentExerciseIndex = 0;
         this.exerciseWeights = {};
 
-        this.showExercise();
+        await this.showExercise();
         this.showView('workout-view');
     },
 
-    // Mostra esercizio corrente
-    showExercise() {
+    async showExercise() {
         const exercise = this.currentScheda.esercizi[this.currentExerciseIndex];
         const total = this.currentScheda.esercizi.length;
 
-        // Info esercizio
         document.getElementById('exercise-name').textContent = exercise.nome;
         document.getElementById('exercise-reps').textContent =
             `${exercise.serie} x ${exercise.ripetizioni}`;
         document.getElementById('exercise-counter').textContent =
             `${this.currentExerciseIndex + 1}/${total}`;
 
-        // Reset serie
         this.currentSeries = 1;
         document.getElementById('series-current').textContent = this.currentSeries;
         document.getElementById('series-total').textContent = exercise.serie;
 
-        // Peso (usa ultimo o 0)
-        const lastWeight = Storage.getLastWeight(exercise.id);
+        const lastWeight = await Storage.getLastWeight(exercise.id);
         this.currentWeight = lastWeight !== null ? lastWeight : 0;
         this.updateWeightDisplay();
     },
 
-    // Aggiorna display peso
     updateWeightDisplay() {
         document.getElementById('weight-value').textContent = `${this.currentWeight} kg`;
     },
 
-    // Modifica peso
     adjustWeight(delta) {
         this.currentWeight = Math.max(0, this.currentWeight + delta);
         this.updateWeightDisplay();
     },
 
-    // Completa una serie
-    completeSeries() {
+    showExerciseHelp() {
+        const exercise = this.currentScheda.esercizi[this.currentExerciseIndex];
+        if (exercise.videoUrl) {
+            window.open(exercise.videoUrl, '_blank');
+        }
+    },
+
+    async completeSeries() {
         const exercise = this.currentScheda.esercizi[this.currentExerciseIndex];
 
-        // Salva peso
         if (this.currentWeight > 0) {
-            Storage.saveWeight(exercise.id, this.currentWeight);
+            await Storage.saveWeight(exercise.id, this.currentWeight);
             this.exerciseWeights[exercise.id] = {
                 nome: exercise.nome,
                 peso: this.currentWeight
             };
         }
 
-        // Prossima serie o prossimo esercizio
         if (this.currentSeries < exercise.serie) {
-            // Avvia timer recupero
             this.startTimer(exercise.recupero, () => {
                 this.currentSeries++;
                 document.getElementById('series-current').textContent = this.currentSeries;
             });
         } else {
-            // Prossimo esercizio o fine
-            this.nextExercise();
+            await this.nextExercise();
         }
     },
 
-    // Prossimo esercizio
-    nextExercise() {
+    async nextExercise() {
         if (this.currentExerciseIndex < this.currentScheda.esercizi.length - 1) {
             this.currentExerciseIndex++;
-            this.showExercise();
+            await this.showExercise();
         } else {
-            this.completeWorkout();
+            await this.completeWorkout();
         }
     },
 
-    // Avvia timer recupero
     startTimer(seconds, onComplete) {
         const timerView = document.getElementById('timer-view');
         const timerDisplay = document.getElementById('timer-display');
@@ -177,9 +225,8 @@ const App = {
         );
     },
 
-    // Completa allenamento
-    completeWorkout() {
-        Storage.saveWorkoutSession(this.currentScheda, this.exerciseWeights);
+    async completeWorkout() {
+        await Storage.saveWorkoutSession(this.currentScheda, this.exerciseWeights);
 
         const summary = document.getElementById('workout-summary');
         const exerciseCount = Object.keys(this.exerciseWeights).length;

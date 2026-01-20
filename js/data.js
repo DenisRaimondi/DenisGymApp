@@ -1,5 +1,5 @@
-// Schede di allenamento predefinite
-const SCHEDE = [
+// Schede di allenamento predefinite (usate solo al primo avvio)
+const SCHEDE_DEFAULT = [
     {
         id: "full-body-1",
         nome: "Full Body A",
@@ -11,7 +11,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "10",
                 recupero: 90,
-                gruppo: "petto"
+                gruppo: "petto",
+                videoUrl: "https://www.youtube.com/results?search_query=panca+piana+esecuzione+corretta+tutorial"
             },
             {
                 id: "squat",
@@ -19,7 +20,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "12",
                 recupero: 90,
-                gruppo: "gambe"
+                gruppo: "gambe",
+                videoUrl: "https://www.youtube.com/results?search_query=squat+esecuzione+corretta+tutorial"
             },
             {
                 id: "hip-thrust",
@@ -27,7 +29,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "12",
                 recupero: 60,
-                gruppo: "glutei"
+                gruppo: "glutei",
+                videoUrl: "https://www.youtube.com/results?search_query=hip+thrust+glutei+esecuzione+tutorial"
             },
             {
                 id: "alzate-laterali",
@@ -35,7 +38,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "15",
                 recupero: 60,
-                gruppo: "spalle"
+                gruppo: "spalle",
+                videoUrl: "https://www.youtube.com/results?search_query=alzate+laterali+spalle+esecuzione+tutorial"
             },
             {
                 id: "curl-manubri",
@@ -43,7 +47,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "12",
                 recupero: 60,
-                gruppo: "bicipiti"
+                gruppo: "bicipiti",
+                videoUrl: "https://www.youtube.com/results?search_query=curl+manubri+bicipiti+esecuzione+tutorial"
             }
         ]
     },
@@ -58,7 +63,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "10",
                 recupero: 90,
-                gruppo: "spalle"
+                gruppo: "spalle",
+                videoUrl: "https://www.youtube.com/results?search_query=shoulder+press+spalle+esecuzione+tutorial"
             },
             {
                 id: "affondi",
@@ -66,7 +72,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "10 per gamba",
                 recupero: 90,
-                gruppo: "gambe"
+                gruppo: "gambe",
+                videoUrl: "https://www.youtube.com/results?search_query=affondi+gambe+esecuzione+corretta+tutorial"
             },
             {
                 id: "glute-bridge",
@@ -74,7 +81,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "15",
                 recupero: 60,
-                gruppo: "glutei"
+                gruppo: "glutei",
+                videoUrl: "https://www.youtube.com/results?search_query=glute+bridge+ponte+glutei+esecuzione+tutorial"
             },
             {
                 id: "panca-inclinata",
@@ -82,7 +90,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "12",
                 recupero: 60,
-                gruppo: "petto"
+                gruppo: "petto",
+                videoUrl: "https://www.youtube.com/results?search_query=panca+inclinata+manubri+esecuzione+tutorial"
             },
             {
                 id: "french-press",
@@ -90,7 +99,8 @@ const SCHEDE = [
                 serie: 3,
                 ripetizioni: "12",
                 recupero: 60,
-                gruppo: "tricipiti"
+                gruppo: "tricipiti",
+                videoUrl: "https://www.youtube.com/results?search_query=french+press+tricipiti+esecuzione+tutorial"
             }
         ]
     }

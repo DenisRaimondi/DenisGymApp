@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#0d0d0d">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>GymApp</title>
@@ -12,8 +12,33 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- LOADING VIEW -->
+    <div id="loading-view" class="view active">
+        <main class="home-main">
+            <div class="home-content">
+                <h1 class="home-title">GymApp</h1>
+                <p class="next-workout-label">Caricamento...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- LOGIN VIEW -->
+    <div id="login-view" class="view">
+        <main class="home-main">
+            <div class="home-content">
+                <h1 class="home-title">GymApp</h1>
+                <p class="next-workout-label">Accedi per continuare</p>
+                <div class="login-form">
+                    <input type="password" id="password-input" class="input-field" placeholder="Password">
+                    <button id="btn-login" class="btn-start btn-small">ACCEDI</button>
+                </div>
+                <p id="login-message" class="login-message"></p>
+            </div>
+        </main>
+    </div>
+
     <!-- HOME VIEW -->
-    <div id="home-view" class="view active">
+    <div id="home-view" class="view">
         <main class="home-main">
             <div class="home-content">
                 <h1 class="home-title">GymApp</h1>
@@ -33,7 +58,7 @@
 
         <main class="workout-main">
             <div class="exercise-info-top">
-                <h1 id="exercise-name">Panca Piana</h1>
+                <h1><span id="exercise-name">Panca Piana</span> <button id="btn-help" class="btn-help">?</button></h1>
                 <p id="exercise-reps" class="exercise-reps">3 x 10</p>
             </div>
 
@@ -76,9 +101,82 @@
         </main>
     </div>
 
-    <script src="js/data.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/timer.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAr3EvH8QPafOtfhST6wxvBqsfPKeyrdZY",
+            authDomain: "denis-gym-app.firebaseapp.com",
+            projectId: "denis-gym-app",
+            storageBucket: "denis-gym-app.firebasestorage.app",
+            messagingSenderId: "938855335144",
+            appId: "1:938855335144:web:f0f053fe4fae31cc75b55d"
+        };
+
+        // Inizializza Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Esporta per gli altri moduli
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseModules = { doc, getDoc, setDoc };
+        window.firebaseReady = true;
+
+        // Email fissa per l'app
+        const APP_EMAIL = 'denis.raimondi@gmail.com';
+
+        // Ascolta stato auth
+        onAuthStateChanged(auth, (user) => {
+            console.log('Auth state changed:', user ? user.email : 'no user');
+            if (user) {
+                window.currentUser = user;
+                window.dispatchEvent(new Event('userLoggedIn'));
+            } else {
+                window.currentUser = null;
+                window.dispatchEvent(new Event('userLoggedOut'));
+            }
+        });
+
+        // Funzione per login con password
+        window.loginWithPassword = async (password) => {
+            try {
+                // Prova prima il login
+                await signInWithEmailAndPassword(auth, APP_EMAIL, password);
+                return { success: true };
+            } catch (error) {
+                // Se l'utente non esiste, crealo
+                if (error.code === 'auth/user-not-found') {
+                    try {
+                        await createUserWithEmailAndPassword(auth, APP_EMAIL, password);
+                        return { success: true, created: true };
+                    } catch (createError) {
+                        return { success: false, error: createError.message };
+                    }
+                }
+                return { success: false, error: error.message };
+            }
+        };
+    </script>
+
+    <!-- Fallback se Firebase non carica -->
+    <script>
+        setTimeout(function() {
+            if (!window.firebaseReady) {
+                console.log('Firebase timeout - showing login');
+                document.getElementById('loading-view').classList.remove('active');
+                document.getElementById('login-view').classList.add('active');
+            }
+        }, 3000);
+    </script>
+
+    <script src="js/data.js?v=12"></script>
+    <script src="js/storage.js?v=12"></script>
+    <script src="js/timer.js?v=12"></script>
+    <script src="js/app.js?v=12"></script>
 </body>
 </html>

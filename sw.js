@@ -1,5 +1,5 @@
 // Service Worker per funzionalità offline
-const CACHE_NAME = 'gymapp-v1';
+const CACHE_NAME = 'gymapp-v12';
 const ASSETS = [
     '/',
     '/index.html',
@@ -33,15 +33,23 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch - serve from cache, fallback to network
+// Fetch - network first, fallback to cache
 self.addEventListener('fetch', event => {
     event.respondWith(
-        caches.match(event.request)
+        fetch(event.request)
             .then(response => {
-                if (response) {
-                    return response;
+                // Clone and cache the response
+                if (response.ok) {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, responseClone);
+                    });
                 }
-                return fetch(event.request);
+                return response;
+            })
+            .catch(() => {
+                // Fallback to cache when offline
+                return caches.match(event.request);
             })
     );
 });

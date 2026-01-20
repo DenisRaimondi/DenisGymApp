@@ -90,6 +90,49 @@ html, body {
     color: var(--text-secondary);
 }
 
+/* ============ LOGIN ============ */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.input-field {
+    width: 100%;
+    max-width: 300px;
+    padding: 16px 20px;
+    font-size: 1rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--text-secondary);
+    border-radius: 100px;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.input-field::placeholder {
+    color: var(--text-secondary);
+}
+
+.btn-small {
+    width: auto;
+    height: auto;
+    padding: 16px 48px;
+    font-size: 1rem;
+}
+
+.login-message {
+    color: var(--accent);
+    font-size: 0.9rem;
+    min-height: 24px;
+}
+
 /* ============ WORKOUT ============ */
 header {
     display: flex;
@@ -130,7 +173,27 @@ header {
 .exercise-info-top h1 {
     font-size: 1.8rem;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin: 0 0 8px 0;
+}
+
+.btn-help {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.btn-help:active {
+    background: var(--accent);
+    color: var(--bg-primary);
 }
 
 .exercise-reps {

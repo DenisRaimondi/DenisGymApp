@@ -1,57 +1,75 @@
-// Storage helper per localStorage
+// Storage helper - Firestore
 const Storage = {
-    KEYS: {
-        WEIGHTS: 'gymapp_weights',
-        HISTORY: 'gymapp_history'
+    userId: null,
+
+    setUser(uid) {
+        this.userId = uid;
     },
 
-    // Salva i pesi per un esercizio
-    saveWeight(exerciseId, weight) {
-        const weights = this.getAllWeights();
+    async loadData() {
+        if (!this.userId || !window.firebaseDb) return null;
+
+        const { doc, getDoc } = window.firebaseModules;
+        const docRef = doc(window.firebaseDb, 'gymapp', this.userId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return docSnap.data();
+        }
+        return { weights: {}, history: [] };
+    },
+
+    async saveData(data) {
+        if (!this.userId || !window.firebaseDb) return;
+
+        const { doc, setDoc } = window.firebaseModules;
+        const docRef = doc(window.firebaseDb, 'gymapp', this.userId);
+        await setDoc(docRef, data);
+    },
+
+    // Cache locale per performance
+    _cache: null,
+
+    async getCache() {
+        if (!this._cache) {
+            this._cache = await this.loadData() || { weights: {}, history: [] };
+        }
+        return this._cache;
+    },
+
+    async saveWeight(exerciseId, weight) {
+        const data = await this.getCache();
         const today = new Date().toISOString().split('T')[0];
 
-        if (!weights[exerciseId]) {
-            weights[exerciseId] = {
+        if (!data.weights[exerciseId]) {
+            data.weights[exerciseId] = {
                 ultimo: weight,
                 storico: []
             };
         }
 
-        weights[exerciseId].ultimo = weight;
-        weights[exerciseId].storico.push({
+        data.weights[exerciseId].ultimo = weight;
+        data.weights[exerciseId].storico.push({
             data: today,
             peso: weight
         });
 
-        // Mantieni solo gli ultimi 30 record
-        if (weights[exerciseId].storico.length > 30) {
-            weights[exerciseId].storico = weights[exerciseId].storico.slice(-30);
+        if (data.weights[exerciseId].storico.length > 30) {
+            data.weights[exerciseId].storico = data.weights[exerciseId].storico.slice(-30);
         }
 
-        localStorage.setItem(this.KEYS.WEIGHTS, JSON.stringify(weights));
+        this._cache = data;
+        await this.saveData(data);
     },
 
-    // Ottieni l'ultimo peso per un esercizio
-    getLastWeight(exerciseId) {
-        const weights = this.getAllWeights();
-        return weights[exerciseId]?.ultimo || null;
+    async getLastWeight(exerciseId) {
+        const data = await this.getCache();
+        return data.weights[exerciseId]?.ultimo || null;
     },
 
-    // Ottieni tutti i pesi
-    getAllWeights() {
-        const data = localStorage.getItem(this.KEYS.WEIGHTS);
-        return data ? JSON.parse(data) : {};
-    },
+    async saveWorkoutSession(scheda, exerciseWeights) {
+        const data = await this.getCache();
 
-    // Ottieni lo storico di un esercizio
-    getWeightHistory(exerciseId) {
-        const weights = this.getAllWeights();
-        return weights[exerciseId]?.storico || [];
-    },
-
-    // Salva una sessione di allenamento
-    saveWorkoutSession(scheda, exerciseWeights) {
-        const history = this.getWorkoutHistory();
         const session = {
             data: new Date().toISOString(),
             schedaId: scheda.id,
@@ -59,41 +77,80 @@ const Storage = {
             esercizi: exerciseWeights
         };
 
-        history.push(session);
+        data.history.push(session);
 
-        // Mantieni solo le ultime 50 sessioni
-        if (history.length > 50) {
-            history.shift();
+        if (data.history.length > 50) {
+            data.history.shift();
         }
 
-        localStorage.setItem(this.KEYS.HISTORY, JSON.stringify(history));
+        this._cache = data;
+        await this.saveData(data);
     },
 
-    // Ottieni lo storico degli allenamenti
-    getWorkoutHistory() {
-        const data = localStorage.getItem(this.KEYS.HISTORY);
-        return data ? JSON.parse(data) : [];
+    async getWorkoutHistory() {
+        const data = await this.getCache();
+        return data.history || [];
     },
 
-    // Conta gli allenamenti totali
-    getTotalWorkouts() {
-        return this.getWorkoutHistory().length;
+    async getTotalWorkouts() {
+        const history = await this.getWorkoutHistory();
+        return history.length;
     },
 
-    // Ottieni l'ultima scheda fatta
-    getLastSchedaId() {
-        const history = this.getWorkoutHistory();
+    async getLastSchedaId() {
+        const history = await this.getWorkoutHistory();
         if (history.length === 0) return null;
         return history[history.length - 1].schedaId;
     },
 
-    // Ottieni la prossima scheda da fare (alterna)
-    getNextSchedaId(schede) {
-        const lastId = this.getLastSchedaId();
+    async getNextSchedaId(schede) {
+        const lastId = await this.getLastSchedaId();
         if (!lastId) return schede[0].id;
 
         const lastIndex = schede.findIndex(s => s.id === lastId);
         const nextIndex = (lastIndex + 1) % schede.length;
         return schede[nextIndex].id;
+    },
+
+    clearCache() {
+        this._cache = null;
+        this._schedeCache = null;
+    },
+
+    // Gestione Schede
+    _schedeCache: null,
+
+    async getSchede() {
+        if (this._schedeCache) return this._schedeCache;
+
+        if (!this.userId || !window.firebaseDb) return null;
+
+        const { doc, getDoc } = window.firebaseModules;
+        const docRef = doc(window.firebaseDb, 'gymapp', this.userId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists() && docSnap.data().schede) {
+            this._schedeCache = docSnap.data().schede;
+            return this._schedeCache;
+        }
+        return null;
+    },
+
+    async saveSchede(schede) {
+        if (!this.userId || !window.firebaseDb) return;
+
+        const data = await this.getCache();
+        data.schede = schede;
+        this._schedeCache = schede;
+        await this.saveData(data);
+    },
+
+    async initSchedeIfNeeded(defaultSchede) {
+        const existing = await this.getSchede();
+        if (!existing || existing.length === 0) {
+            await this.saveSchede(defaultSchede);
+            return defaultSchede;
+        }
+        return existing;
     }
 };
