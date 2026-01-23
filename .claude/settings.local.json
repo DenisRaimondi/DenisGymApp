@@ -7,7 +7,15 @@
       "mcp__chrome-devtools__evaluate_script",
       "mcp__chrome-devtools__navigate_page",
       "mcp__chrome-devtools__get_console_message",
-      "mcp__chrome-devtools__list_network_requests"
+      "mcp__chrome-devtools__list_network_requests",
+      "Bash(firebase login:list:*)",
+      "Bash(firebase firestore:databases:create:*)",
+      "Bash(curl:*)",
+      "mcp__chrome-devtools__list_console_messages",
+      "Bash(firebase deploy:*)",
+      "mcp__chrome-devtools__wait_for",
+      "Bash(gcloud config:*)",
+      "mcp__chrome-devtools__list_pages"
     ]
   }
 }

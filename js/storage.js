@@ -49,13 +49,24 @@ const Storage = {
         }
 
         data.weights[exerciseId].ultimo = weight;
-        data.weights[exerciseId].storico.push({
-            data: today,
-            peso: weight
-        });
 
-        if (data.weights[exerciseId].storico.length > 30) {
-            data.weights[exerciseId].storico = data.weights[exerciseId].storico.slice(-30);
+        // Solo 1 entry per giorno - aggiorna se esiste, altrimenti aggiungi
+        const storico = data.weights[exerciseId].storico;
+        const todayIndex = storico.findIndex(entry => entry.data === today);
+
+        if (todayIndex >= 0) {
+            // Aggiorna entry esistente per oggi
+            storico[todayIndex].peso = weight;
+        } else {
+            // Aggiungi nuova entry
+            storico.push({
+                data: today,
+                peso: weight
+            });
+        }
+
+        if (storico.length > 30) {
+            data.weights[exerciseId].storico = storico.slice(-30);
         }
 
         this._cache = data;
