@@ -1,5 +1,5 @@
 // Service Worker per funzionalità offline
-const CACHE_NAME = 'gymapp-v19';
+const CACHE_NAME = 'gymapp-v22';
 const ASSETS = [
     '/',
     '/index.html',
@@ -35,6 +35,18 @@ self.addEventListener('activate', event => {
 
 // Fetch - network first, fallback to cache
 self.addEventListener('fetch', event => {
+    // Solo GET possono essere cachati
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
+    // Non cachare richieste Firebase/external APIs
+    if (event.request.url.includes('firebaseio.com') ||
+        event.request.url.includes('googleapis.com') ||
+        event.request.url.includes('gstatic.com')) {
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then(response => {
