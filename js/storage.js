@@ -67,6 +67,41 @@ const Storage = {
         return data.weights[exerciseId]?.ultimo || null;
     },
 
+    // Progressive Overload: controlla se è ora di aumentare il peso
+    // Ritorna { shouldIncrease: bool, currentWeight: number, suggestedWeight: number, consecutiveSessions: number }
+    async checkProgressiveOverload(exerciseId, minSessions = 3, increment = 2.5) {
+        const data = await this.getCache();
+        const exerciseData = data.weights[exerciseId];
+
+        if (!exerciseData || !exerciseData.storico || exerciseData.storico.length < minSessions) {
+            return { shouldIncrease: false };
+        }
+
+        const storico = exerciseData.storico;
+        const currentWeight = exerciseData.ultimo;
+
+        // Conta sessioni consecutive con lo stesso peso (partendo dalla più recente)
+        let consecutiveSessions = 0;
+        for (let i = storico.length - 1; i >= 0; i--) {
+            if (storico[i].peso === currentWeight) {
+                consecutiveSessions++;
+            } else {
+                break;
+            }
+        }
+
+        if (consecutiveSessions >= minSessions) {
+            return {
+                shouldIncrease: true,
+                currentWeight: currentWeight,
+                suggestedWeight: currentWeight + increment,
+                consecutiveSessions: consecutiveSessions
+            };
+        }
+
+        return { shouldIncrease: false, consecutiveSessions: consecutiveSessions };
+    },
+
     async saveWorkoutSession(scheda, exerciseWeights) {
         const data = await this.getCache();
 

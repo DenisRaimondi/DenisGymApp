@@ -49,6 +49,17 @@
         </main>
     </div>
 
+    <!-- SELECT DAY VIEW -->
+    <div id="select-day-view" class="view">
+        <header>
+            <button id="btn-back-select" class="btn-icon">&larr;</button>
+            <span>Scegli il giorno</span>
+        </header>
+        <main class="select-day-main">
+            <div id="day-buttons" class="day-buttons"></div>
+        </main>
+    </div>
+
     <!-- WORKOUT VIEW -->
     <div id="workout-view" class="view">
         <header>
@@ -76,6 +87,15 @@
                     <span id="weight-value" class="weight-value">0 kg</span>
                     <button id="weight-plus" class="btn-weight-small">+</button>
                 </div>
+                <div id="progressive-overload-hint" class="overload-hint hidden">
+                    <span class="overload-icon">&#8593;</span>
+                    <span id="overload-message">Prova ad aumentare!</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <button id="btn-prev" class="btn-nav">&larr; INDIETRO</button>
+                <button id="btn-next" class="btn-nav">AVANTI &rarr;</button>
             </div>
         </main>
     </div>
@@ -174,9 +194,9 @@
         }, 3000);
     </script>
 
-    <script src="js/data.js?v=12"></script>
-    <script src="js/storage.js?v=12"></script>
-    <script src="js/timer.js?v=12"></script>
-    <script src="js/app.js?v=12"></script>
+    <script src="js/data.js?v=21"></script>
+    <script src="js/storage.js?v=21"></script>
+    <script src="js/timer.js?v=21"></script>
+    <script src="js/app.js?v=21"></script>
 </body>
 </html>
