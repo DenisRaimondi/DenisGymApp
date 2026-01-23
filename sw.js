@@ -1,5 +1,5 @@
 // Service Worker per funzionalità offline
-const CACHE_NAME = 'gymapp-v12';
+const CACHE_NAME = 'gymapp-v19';
 const ASSETS = [
     '/',
     '/index.html',

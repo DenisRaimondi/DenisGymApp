@@ -1,37 +1,50 @@
-// Timer per il recupero
+// Timer per il recupero - usa tempo reale per funzionare anche in background
 const Timer = {
     intervalId: null,
-    remainingSeconds: 0,
+    endTime: null,
     onTick: null,
     onComplete: null,
 
     start(seconds, onTick, onComplete) {
         this.stop(); // Ferma timer precedente se esiste
-        this.remainingSeconds = seconds;
+        this.endTime = Date.now() + (seconds * 1000);
         this.onTick = onTick;
         this.onComplete = onComplete;
 
         // Aggiorna subito
-        if (this.onTick) {
-            this.onTick(this.remainingSeconds);
+        this.tick();
+
+        // Controlla ogni 100ms per maggiore reattività quando torna dal background
+        this.intervalId = setInterval(() => this.tick(), 100);
+
+        // Quando l'app torna in foreground, aggiorna subito
+        document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    },
+
+    handleVisibilityChange: function() {
+        if (document.visibilityState === 'visible' && Timer.intervalId) {
+            Timer.tick();
         }
+    },
 
-        this.intervalId = setInterval(() => {
-            this.remainingSeconds--;
+    tick() {
+        const remaining = Math.ceil((this.endTime - Date.now()) / 1000);
 
+        if (remaining <= 0) {
+            this.stop();
             if (this.onTick) {
-                this.onTick(this.remainingSeconds);
+                this.onTick(0);
             }
-
-            if (this.remainingSeconds <= 0) {
-                this.stop();
-                this.playSound();
-                this.vibrate();
-                if (this.onComplete) {
-                    this.onComplete();
-                }
+            this.playSound();
+            this.vibrate();
+            if (this.onComplete) {
+                this.onComplete();
             }
-        }, 1000);
+        } else {
+            if (this.onTick) {
+                this.onTick(remaining);
+            }
+        }
     },
 
     stop() {
@@ -39,6 +52,8 @@ const Timer = {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
+        document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+        this.endTime = null;
     },
 
     skip() {
